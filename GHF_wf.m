@@ -24,6 +24,7 @@ for i = 1: Ly
     end
 end
 
+disp("here1")
 
 H_0 = zeros(2*N_sites,2*N_sites);
 	
@@ -43,6 +44,8 @@ for i=1:N_sites
 	end
 end
 
+disp("here2")
+
 N_part = N_up + N_dwn;
 ueff = min(U,4);
 attempt = 50;
@@ -60,10 +63,17 @@ for i = 1: attempt
         end
     end
 
+    disp("here3")
+
     % turn H into a Hermitan matrix
     Hrnd = 0.5*(Hrnd + Hrnd');
+    disp("here3.1")
+
     % find the eigenvalues and eigen states of Hrnd
-    [evec,evalue] = eig(Hrnd);
+    [evec, evalue] = eig(Hrnd);
+    disp("here3.2")
+
+    disp(evec)
     % define the spin up and down sectors of p_trial
     p_trial = horzcat(evec(:,1:N_part));
     % calculate average site densities and energy
@@ -75,6 +85,7 @@ for i = 1: attempt
 	    di_old(j) = G(j+N_sites,j); 
 	end
 
+    disp("here4")
     e_old=0;
     
     for j=1:N_part
@@ -84,6 +95,8 @@ for i = 1: attempt
     wc = 0;
     it = 1;
     
+    disp("here5")
+
     while (wc == 0)
         % construct mean-field Hamiltonians
         HMF = H_0;
@@ -94,6 +107,8 @@ for i = 1: attempt
             HMF(j,j+N_sites) = deltaj;
             HMF(j+N_sites,j) = deltaj;
         end
+
+        disp("here6")
         
         % find eigen values and eigen vectors for the spin up sectors
         [evec,evalue]=eig(HMF);
@@ -180,9 +195,9 @@ for i=1:N_sites
 end
 
 potentialEnergy=n_int*U;
-%% calculate the kinetic energy:
+% calculate the kinetic energy:
 kineticEnergy=sum(sum(H_0.'.*(G)));
-%% calculate the total energy:
+% calculate the total energy:
 E_T=potentialEnergy+kineticEnergy;
 E_T
 potentialEnergy
@@ -199,6 +214,8 @@ szsz = zeros(4*Lx + 1,2*Ly + 1);
 nn = zeros (4*Lx + 1,2*Ly + 1);
 count = zeros(4*Lx + 1, 2*Ly + 1);   
 Ns = N_sites;
+
+disp("here1")
 
 for j = 1:N_sites
     for i = 1:N_sites
@@ -243,7 +260,7 @@ for i = 1:4*Lx+1
 		if (count(i,j) > 0)
 		    xij = (i - 2*Lx - 1)*dx;
 		    yij = (j - Ly - 1)*dy;
-    		fprintf(f1,'%d\t%d\t%d\n',xij,yij,nn(i,j));
+    		fprintf(f2,'%d\t%d\t%d\n',xij,yij,nn(i,j));
 		end
 	end
 end
