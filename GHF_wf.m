@@ -1,41 +1,41 @@
-	Lx = 12;
-	Ly = 12;
-	U = 4;
-        N_sites=Lx*Ly;
-	N_up=72;
-	N_dwn=72;
-	dx=0.5;
-	dy=sqrt(3.0)/2.0;
-
-	sites=zeros(N_sites,2);
+Lx = 12;
+Ly = 12;
+U = 4;
+N_sites=Lx*Ly;
+N_up=72;
+N_dwn=72;
+dx=0.5;
+dy=sqrt(3.0)/2.0;
+sites=zeros(N_sites,2);
         
-	k = 1;
-	for i = 1: Ly
-		for j = 1: Lx
-			if (mod(i,2) == 0)
-				x = j-1;
-			else
-				x = j-1 + dx;
-			endif
-			y = (1-i)*dy;
-			sites(k,1)=x;
-			sites(k,2)=y;
-			k=k+1;
-		end
-	end
+k = 1;
+for i = 1: Ly
+    for j = 1: Lx
+	    if (mod(i,2) == 0)
+			x = j-1;
+		else
+			x = j-1 + dx;
+		endif
+
+        y = (1-i)*dy;
+        sites(k,1)=x;
+        sites(k,2)=y;
+        k=k+1;
+    end
+end
 
 
-	H_0 = zeros(2*N_sites,2*N_sites);
+H_0 = zeros(2*N_sites,2*N_sites);
 	
-	for i=1:N_sites
-		for j=1:N_sites
+for i=1:N_sites
+    for j=1:N_sites
 
 			xij = abs(sites(i,1)-sites(j,1));
 			xij = min(xij,Lx-xij);
 			yij = abs(sites(i,2)-sites(j,2));
 			yij = min(yij,Ly*dy-yij);
 
-			r2=xij**2+yij**2;
+			r2=xij^2+yij^2;
 			if (r2 <= 1.1)
 				if (r2 >= 0.9)
 					H_0(i,j)=H_0(i,j)-1;
@@ -57,7 +57,7 @@
     for i = 1: attempt
       % create a matrix of random elements
       Hrnd = zeros(2*N_sites,2*N_sites);
-        for k=1:2*N_sites
+      for k=1:2*N_sites
         for l=1:2*N_sites
           Hrnd(k,l)=rand;
         end
@@ -69,27 +69,28 @@
       % define the spin up and down sectors of p_trial
       p_trial = horzcat(evec(:,1:N_part));
       % calculate average site densities and energy
-        G = p_trial*inv(p_trial'*p_trial)*p_trial';
+      G = p_trial*inv(p_trial'*p_trial)*p_trial';
+    end
     
 	di_old = zeros(1,N_sites);
 	for j=1:N_sites
 		di_old(j) = G(j+N_sites,j); 
 	end
-       e_old=0;
-       for j=1:N_part
-	       e_old = e_old + evalue(j,j);
-       end
-      wc = 0;
-      it = 1;
-      while (wc == 0)
+    e_old=0;
+    for j=1:N_part
+	    e_old = e_old + evalue(j,j);
+    end
+    wc = 0;
+    it = 1;
+    while (wc == 0)
         % construct mean-field Hamiltonians
         HMF = H_0;
-	for j=1:N_sites
-		%deltaj = ((-1)**j)*ueff*di_old(j);
-		deltaj = -ueff*di_old(j);
-		HMF(j,j+N_sites) = deltaj;
-		HMF(j+N_sites,j) = deltaj;
-	end
+	    for j=1:N_sites
+		    %deltaj = ((-1)^j)*ueff*di_old(j);
+		    deltaj = -ueff*di_old(j);
+            HMF(j,j+N_sites) = deltaj;
+            HMF(j+N_sites,j) = deltaj;
+        end
         % find eigen values and eigen vectors for the spin up sectors
         [evec,evalue]=eig(HMF);
         p_trial = horzcat(evec(:,1:N_part));
@@ -99,53 +100,52 @@
         G = p_trial*inv(p_trial'*p_trial)*p_trial';
     
         n_int=0;
-	di = zeros(1,N_sites);
-	for j=1:N_sites
-                di(j) = G(j,j+N_sites);
-
-	end
+        di = zeros(1,N_sites);
+        for j=1:N_sites
+            di(j) = G(j,j+N_sites);
+        end
         e_new = 0;
-	for j=1:N_part
-		e_new = e_new+evalue(j,j);
-	end
-	delta_e = abs(e_new-e_old);
+        for j=1:N_part
+            e_new = e_new+evalue(j,j);
+        end
+        delta_e = abs(e_new-e_old);
         delta_d = 0;
         for k=1:N_sites
-	  new = di(k);
-	  old = di_old(k);
-          delta_d = delta_d + abs(new-old);
+            new = di(k);
+            old = di_old(k);
+            delta_d = delta_d + abs(new-old);
         end
         delta_d = delta_d/N_sites;
-        if (delta_e <= 10**(-8))
-          if (delta_d <= 10**(-4))
-	      ibegin = ibegin+1;
-              if (ibegin == 1)
-                minima(1) = e_new;
-                psi_trial = p_trial;
-               elseif all (minima - e_new > 10**(-8))
-                minima=horzcat(minima,e_new);
-                psi_trial = p_trial;
-              end
-              wc = 1;
-          end
+        if (delta_e <= 10^(-8))
+            if (delta_d <= 10^(-4))
+                ibegin = ibegin+1;
+                if (ibegin == 1)
+                    minima(1) = e_new;
+                    psi_trial = p_trial;
+                elseif all (minima - e_new > 10^(-8))
+                    minima=horzcat(minima,e_new);
+                    psi_trial = p_trial;
+                end
+                wc = 1;
+            end
         end
-	mix = zeros(1,N_sites);
-	for k=1:N_sites
-        	mix(k) = 0.5*di(k) + 0.5*di_old(k);
-        	di_old(k) = di(k);
-		di(k) = mix(k);
-	end
-	e_old=e_new;
-	if (it == iteractions)
-		wc = 2;
-	end
-	it = it+1;
-      endwhile
-      wc
-      e_old
-      if (wc ==1)
-      minima
-      end
+        mix = zeros(1,N_sites);
+        for k=1:N_sites
+            mix(k) = 0.5*di(k) + 0.5*di_old(k);
+            di_old(k) = di(k);
+            di(k) = mix(k);
+        end
+        e_old=e_new;
+        if (it == iteractions)
+            wc = 2;
+        end
+        it = it+1;
+    endwhile
+    wc
+    e_old
+    if (wc ==1)
+        minima
+    end
     end
 
         psi = psi_trial;
